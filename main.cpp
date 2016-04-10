@@ -14,6 +14,8 @@ static const char alphanum[] =
 
 int stringLength = sizeof(alphanum) - 1;
 
+
+
 char genRandom()
 {
 
@@ -25,13 +27,16 @@ char genRandom()
 int main()
 {
 
+
     Heap <string> h;
+    bool order;
+    cin >> order;
+    h.setType(order); // false is MIN type heap (ascending order)
     srand(time(NULL));
     string str = "";
 
-    for (size_t i = 0; i < 60; ++i)
+    for (size_t i = 0; i < 500; ++i)
     {
-//        str = "";
         for (size_t j = 0; j < 10; ++j)
         {
             str+=genRandom();
@@ -42,51 +47,22 @@ int main()
     }
 
 
+//    Heap <int> h;
+
+//    bool order;
+//    cin >> order;
+//    h.setType(order); // false is MIN type heap (ascending order)
+//    srand(time(NULL));
+
+//    for (size_t i = 0; i < 1000; ++i)
+//    {
+
+//        h << rand() % 1000;
+
+//    }
 
     cout << h << endl;
-    cout << endl << endl;
 
 
-//    int n;
-//    cout << "Enter value: ";
-//    cin >> n;
-
-//    while (n >= 0)
-//    {
-//        cout << n << " has children " <<  2*n + 1 << " and " << 2*n + 2 << endl;
-//        cout << n << " parent is " << (n-1)/2 << endl << endl;
-//        cout << "Enter value: ";
-//        cin >> n;
-//    }
-
-//    cout << endl;
-//    vector<int>v;
-
-//    srand(time(NULL));
-//    for (size_t i = 0; i < 25; ++i)
-//    {
-//        v.push_back(rand() % 100);
-//    }
-
-//    for (vector<int>::iterator it = v.begin() ; it != v.end(); ++it)
-//      cout << *it << " ";
-
-//    cout << endl << endl;
-
-////    v.clear();
-
-//    vector<int>v2;
-
-
-//    v2.push_back(500);
-
-//    v = v2;
-
-//    v2.clear();
-
-//    for (vector<int>::iterator it = v.begin() ; it != v.end(); ++it)
-//      cout << *it << " ";
-//cout << endl << endl;
     return 0;
 }
-

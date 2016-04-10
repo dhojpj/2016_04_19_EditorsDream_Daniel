@@ -10,12 +10,14 @@
 using namespace std;
 
 enum HEAP_ERROR {HEAP_EMPTY};
+enum HEAP_TYPE {MAX_UP, MAX_DOWN, MIN_UP, MIN_DOWN, CHILD_MAX, CHILD_MIN};
 
 template <typename T>
 class Heap
 {
 public:
-    Heap();
+    typedef void (Heap::*sort)(unsigned int &p, unsigned int &c);
+    Heap(bool reheapType = true);
     Heap(const T &t);
     Heap(const Heap<T> &h);
     ~Heap();
@@ -28,6 +30,7 @@ public:
     void clear();
     unsigned int size();
 
+    void setType(const bool &reheapType);
 
     template<typename U>
     friend ostream& operator<<(ostream& out, Heap<U> &h);
@@ -38,51 +41,72 @@ public:
 private:
     vector<T> *v;
     unsigned int findParent(unsigned int n);
+
+    bool reheap; // if the heap is MAX (descending order) or MIN (ascending order)
+    sort heap_sort[4]; // function pointers
+    HEAP_TYPE reheapUp, reheapDown; // to call function pointers
+
     void reheapifyUp();
     void reheapifyDown();
+    void reheapifyUp_MAX(unsigned int &p, unsigned int &c);
+    void reheapifyDown_MAX(unsigned int &p, unsigned int &c);
+    void reheapifyUp_MIN(unsigned int &p, unsigned int &c);
+    void reheapifyDown_MIN(unsigned int &p, unsigned int &c);
+
+    void chooseChild_MAX(const bool &left, const bool &right,  const unsigned int &parent, unsigned int &child);
+    void chooseChild_MIN(const bool &left, const bool &right,  const unsigned int &parent, unsigned int &child);
+    void checkChildrenExist(bool &left, bool &right, const unsigned int &parent);
+
     void initializeObject();
-    void checkChildrenExist(bool &left, bool &right, unsigned int parent);
-//    void compareChildren(const unsigned int *left, const unsigned int *right, unsigned int **chosen);
-
-    // callback functions
     void copy(const Heap<T> &h);
-
 };
 
 
 
 
+// constructor calls upon this
 template<typename T>
 void Heap<T>::initializeObject()
 {
     v = new vector<T>;
-    v->reserve(26);
+    v->reserve(100);
+
+    setType(reheap);
+
+    heap_sort[MAX_UP] = &Heap<T>::reheapifyUp_MAX;
+    heap_sort[MAX_DOWN] = &Heap<T>::reheapifyDown_MAX;
+    heap_sort[MIN_UP] = &Heap<T>::reheapifyUp_MIN;
+    heap_sort[MIN_DOWN] = &Heap<T>::reheapifyDown_MIN;
+
 }
 
-
 template<typename T>
-void Heap<T>::copy(const Heap<T> &h)
+void Heap<T>::setType(const bool &reheapType)
 {
-    if (this != &h)
+    if (&reheap != &reheapType)
     {
-        clear();
-        v = h.v;
+        reheap = reheapType;
     }
+
+    if (reheap)
+    {
+        reheapUp = MAX_UP;
+        reheapDown = MAX_DOWN;
+    }
+    else
+    {
+        reheapUp = MIN_UP;
+        reheapDown = MIN_DOWN;
+    }
+
 }
-
-template<typename T>
-void Heap<T>::clear()
-{
-    v->clear();
-}
-
-
 
 
 // constructs the vector and reserves memory for the letters
 template<typename T>
-Heap<T>::Heap()
+Heap<T>::Heap(bool reheapType)
 {
+    reheap = reheapType;
     initializeObject();
 }
 
@@ -109,8 +133,15 @@ Heap<T>::~Heap()
 template<typename T>
 Heap<T>& Heap<T>::operator=(const Heap<T> &h)
 {
-    copy(h);
+    if (*this != h)
+    {
+        clear();
+        copy(h);
+    }
+
+    return *this;
 }
+
 
 template<typename T>
 Heap<T>& Heap<T>::operator>>(T &t)
@@ -123,11 +154,11 @@ Heap<T>& Heap<T>::operator<<(const T &t)
 {
     v->push_back(t);
 
+//    (this->*heap_sort[reheapUp])();
     reheapifyUp();
 
     return *this;
 }
-
 
 template<typename T>
 bool Heap<T>::empty()
@@ -139,6 +170,26 @@ template<typename T>
 unsigned int Heap<T>::size()
 {
     return v->size();
+}
+
+
+
+template<typename T>
+void Heap<T>::copy(const Heap<T> &h)
+{
+    if (this != &h)
+    {
+        clear();
+        v = h.v;
+    }
+}
+
+template<typename T>
+void Heap<T>::clear()
+{
+    v->clear();
+    reheap = true;
+    setType(reheap);
 }
 
 // make sure it's not the root to begin with
@@ -168,18 +219,10 @@ void Heap<T>::reheapifyUp()
     child = v->size() - 1;
     parent = findParent(child);
 
-    while(v->at(child) > v->at(parent))
-    {
-        // if greater swap
-        swap(v->at(child), v->at(parent));
+    (this->*heap_sort[reheapUp])(parent, child);
 
-        child = parent;
-        parent = findParent(child);
-    }
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 template<typename T>
 void Heap<T>::reheapifyDown()
 {
@@ -197,117 +240,164 @@ void Heap<T>::reheapifyDown()
 
     // assuming that the beginning is already taken care of
     unsigned int parent, childChosen;
-    bool checkLeft, checkRight;
 
     // swap the last with the first
     swap(v->at(0), v->at(v->size() - 1));
     v->pop_back();
 
     parent = 0;
-    checkChildrenExist(checkLeft, checkRight, parent);
 
-    // if right exists, then left automatically exists
-    if (checkRight)
-    {   if (v->at(2*parent + 2) > v->at(2*parent + 1))
-        {
-            childChosen = 2*parent + 2;
-        }
-        else
-        {
-            childChosen = 2*parent + 1;
-        }
-    }
-    else if (checkLeft && !checkRight)
-    {
-        childChosen = 2*parent + 1;
-    }
-    else
-    {
-        childChosen = parent;
-    }
+    (this->*heap_sort[reheapDown])(parent, childChosen);
 
-    while(v->at(childChosen) > v->at(parent))
+}
+
+// called by reheapifyUp() using the heap_sort function pointer array
+template<typename T>
+void Heap<T>::reheapifyUp_MAX(unsigned int &p, unsigned int &c)
+{
+    while(v->at(c) > v->at(p))
     {
         // if greater swap
-        swap(v->at(parent), v->at(childChosen));
+        swap(v->at(c), v->at(p));
 
-        parent = childChosen;
+        c = p;
+        p = findParent(c);
+    }
+}
 
-        checkChildrenExist(checkLeft, checkRight, parent);
+// called by reheapifyUp() using the heap_sort function pointer array
+template<typename T>
+void Heap<T>::reheapifyUp_MIN(unsigned int &p, unsigned int &c)
+{
+    while(v->at(c) < v->at(p))
+    {
+        // if greater swap
+        swap(v->at(c), v->at(p));
 
-        // if right exists, then left automatically exists
-        if (checkRight)
-        {   if (v->at(2*parent + 2) > v->at(2*parent + 1))
-            {
-                childChosen = 2*parent + 2;
-            }
-            else
-            {
-                childChosen = 2*parent + 1;
-            }
-        }
-        else if (checkLeft && !checkRight)
-        {
-            childChosen = 2*parent + 1;
-        }
-        else
-        {
-            childChosen = parent;
-        }
+        c = p;
+        p = findParent(c);
     }
 
 }
 
+// called by reheapifyDown() using the heap_sort function pointer array
 template<typename T>
-void Heap<T>::checkChildrenExist(bool &left, bool &right, unsigned int parent)
+void Heap<T>::reheapifyDown_MAX(unsigned int &p, unsigned int &c)
+{
+    bool checkLeft, checkRight;
+    checkChildrenExist(checkLeft, checkRight, p);
+
+    chooseChild_MAX(checkLeft, checkRight, p, c);
+
+    while(v->at(c) > v->at(p))
+    {
+        // if greater swap
+        swap(v->at(p), v->at(c));
+
+        p = c;
+
+        checkChildrenExist(checkLeft, checkRight, p);
+
+        chooseChild_MAX(checkLeft, checkRight, p, c);
+    }
+}
+
+// called by reheapifyDown() using the heap_sort function pointer array
+template<typename T>
+void Heap<T>::reheapifyDown_MIN(unsigned int &p, unsigned int &c)
+{
+    bool checkLeft, checkRight;
+    checkChildrenExist(checkLeft, checkRight, p);
+
+    chooseChild_MIN(checkLeft, checkRight, p, c);
+
+    while(v->at(c) < v->at(p))
+    {
+        // if greater swap
+        swap(v->at(p), v->at(c));
+
+        p = c;
+
+        checkChildrenExist(checkLeft, checkRight, p);
+
+        chooseChild_MIN(checkLeft, checkRight, p, c);
+    }
+}
+
+// called by reheapifyDown()
+template<typename T>
+void Heap<T>::checkChildrenExist(bool &left, bool &right, const unsigned int &parent)
 {
     left = 2*parent + 1 < v->size() ? true : false;
     right = 2*parent + 2 < v->size() ? true : false;
 }
 
-//template<typename T>
-//void Heap<T>::compareChildren(const unsigned int *left, const unsigned int *right, unsigned int **chosen)
-//{
+// called by reheapifyDown() using the heap_sort function pointer array
+template<typename T>
+void Heap<T>::chooseChild_MAX(const bool &left, const bool &right, const unsigned int &parent, unsigned int &child)
+{
+    // if right exists, then left automatically exists
+    if (right)
+    {
+        if (v->at(2*parent + 2) > v->at(2*parent + 1))
+        {
+            child = 2*parent + 2;
+        }
+        else
+        {
+            child = 2*parent + 1;
+        }
+    }
+    else if (left && !right)
+    {
+        child = 2*parent + 1;
+    }
+    else
+    {
+        child = parent;
+    }
+}
 
-//}
-
+// called by reheapifyDown() using the heap_sort function pointer array
+template<typename T>
+void Heap<T>::chooseChild_MIN(const bool &left, const bool &right, const unsigned int &parent, unsigned int &child)
+{
+    // if right exists, then left automatically exists
+    if (right)
+    {
+        if (v->at(2*parent + 2) < v->at(2*parent + 1))
+        {
+            child = 2*parent + 2;
+        }
+        else
+        {
+            child = 2*parent + 1;
+        }
+    }
+    else if (left && !right)
+    {
+        child = 2*parent + 1;
+    }
+    else
+    {
+        child = parent;
+    }
+}
 
 template<typename U>
 ostream& operator<<(ostream& out, Heap<U> &h)
 {
-
-    // printing heap key
-//    for (unsigned int i = 0; i < h.v->size() - 1; ++i)
-//    {
-//        out << i << "|" << (i - 1) / 2 << "  ";
-//    }
-
-//    out << endl << endl;
-
-//    // printing list as is
-//    for (unsigned int i = 0; i < h.v->size(); ++i)
-//    {
-//        if (i % 5 == 0)
-//            out << endl;
-//        out << i << " " << h.v->at(i) << "\t";
-//    }
-
-//    out << endl << endl;
-
     unsigned int count = 0;
     while (!h.v->empty())
     {
         if (count % 5 == 0)
             out << endl;
+
         out << setw(3) << h.v->front() << " ";
-//        h.v->pop_back();
+
         h.reheapifyDown();
         ++count;
     }
-
-//    out << h.v->front();
-
-//    h.v->pop_back();
 
     return out;
 }
