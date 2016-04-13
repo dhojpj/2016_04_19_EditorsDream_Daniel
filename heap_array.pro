@@ -6,5 +6,6 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 HEADERS += \
-    heap_vector.h
+    heap_vector.h \
+    Frequency.h
 

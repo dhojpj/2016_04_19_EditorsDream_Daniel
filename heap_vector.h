@@ -2,7 +2,7 @@
 #define HEAP_VECTOR_H
 #include <iostream>
 #include <cstdlib>
-#include <ctime>
+//#include <ctime>
 #include <iomanip>
 #include <vector>
 #include <algorithm>
@@ -69,7 +69,7 @@ template<typename T>
 void Heap<T>::initializeObject()
 {
     v = new vector<T>;
-    v->reserve(100);
+    v->reserve(1);
 
     setType(reheap);
 
@@ -147,6 +147,7 @@ template<typename T>
 Heap<T>& Heap<T>::operator>>(T &t)
 {
     t = v->front();
+    reheapifyDown();
 }
 
 template<typename T>
@@ -154,7 +155,6 @@ Heap<T>& Heap<T>::operator<<(const T &t)
 {
     v->push_back(t);
 
-//    (this->*heap_sort[reheapUp])();
     reheapifyUp();
 
     return *this;

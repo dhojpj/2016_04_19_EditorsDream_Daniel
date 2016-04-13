@@ -4,7 +4,8 @@
 #include <iomanip>
 #include <string>
 //#include <vector>
-#include "heap_vector.h"
+//#include "heap_vector.h"
+#include "Frequency.h"
 using namespace std;
 
 
@@ -26,42 +27,31 @@ char genRandom()
 
 int main()
 {
+    Frequency f;
 
+    f.print();
 
-    Heap <string> h;
-    bool order;
-    cin >> order;
-    h.setType(order); // false is MIN type heap (ascending order)
-    srand(time(NULL));
-    string str = "";
+    cout << endl << endl;
 
-    for (size_t i = 0; i < 500; ++i)
-    {
-        for (size_t j = 0; j < 10; ++j)
-        {
-            str+=genRandom();
-        }
-
-        h << str;
-        str = "";
-    }
-
-
-//    Heap <int> h;
-
+//    Heap <string> h;
 //    bool order;
 //    cin >> order;
 //    h.setType(order); // false is MIN type heap (ascending order)
 //    srand(time(NULL));
+//    string str = "";
 
-//    for (size_t i = 0; i < 1000; ++i)
+//    for (size_t i = 0; i < 500; ++i)
 //    {
+//        for (size_t j = 0; j < 10; ++j)
+//        {
+//            str+=genRandom();
+//        }
 
-//        h << rand() % 1000;
-
+//        h << str;
+//        str = "";
 //    }
 
-    cout << h << endl;
+
 
 
     return 0;
