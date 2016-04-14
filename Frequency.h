@@ -3,7 +3,13 @@
 
 
 /*
- * node is word and its position
+PURPOSE OF THIS CLASS
+to be used later in conjunction with Heap
+    to count and print the objects in the heap object
+
+
+
+* node is word and its position
 heap 1 is heap pointers to heap objects
 each letter is a regular heap with words
 
@@ -41,84 +47,107 @@ it occurred, all in an “easy to understand” fashion.
 #include "heap_vector.h"
 using namespace std;
 
-//template<typename T>
+template<typename T>
 class Frequency
 {
 public:
     Frequency();
+    Frequency(const Heap<T>& other);
     ~Frequency();
 
+    void getHeap(const Heap<T>& other);
     void print();
 
 private:
-    Heap<size_t> h;
+    Heap<T>* h;
 
-    void initialize();
+//    void initialize();
     void clear();
 };
 
 
 
 //template<typename T>
-void Frequency::initialize()
+//void Frequency<T>::initialize()
+//{
+//    if (!h)
+//    {
+//        h = new Heap<T>;
+//    }
+//}
+
+template<typename T>
+Frequency<T>::Frequency()
 {
-//    h = new Heap<int>(false);
+    h = NULL;
+}
 
-    h.setType(false);
+template<typename T>
+Frequency<T>::Frequency(const Heap<T>& other)
+{
+    h = NULL;
+    getHeap(other);
+////    if (!h)
+////    {
+//        h = new Heap<T>(false);
+////    }
 
-    srand(time(NULL));
+//    *h = other;
+}
 
-    for (size_t i = 0; i < 100; ++i)
+template<typename T>
+Frequency<T>::~Frequency()
+{
+    if (h)
     {
-
-        h << rand() % 10;
-
+        h->clear();
     }
-
 }
 
-//template<typename T>
-void Frequency::clear()
+template<typename T>
+void Frequency<T>::getHeap(const Heap<T> &other)
 {
-    h.clear();
+    if (!h)
+    {
+        h = new Heap<T>(false);
+    }
+//    else if (h != other)
+//    {
+//        h->v->clear();
+//    }
+
+    *h = other;
 }
 
-//template<typename T>
-Frequency::Frequency()
-{
-    initialize();
-}
 
-//template<typename T>
-Frequency::~Frequency()
-{
-    clear();
-}
+
 
 // will change this to typename T
-//template<typename T>
-void Frequency::print()
+template<typename T>
+void Frequency<T>::print()
 {
-    size_t previous, next, count = 0, totalCount = 0, lineCount = 0;
+    T previous, next;
+    size_t set = 3, count = 0, totalCount = 0, lineCount = 0;
 
-
-
-    if (!h.empty())
+    if (!h->empty())
     {
         // grab the first word
-        h >> previous;
+        *h >> previous;
         ++count;
 
-        while (!h.empty())
+//        cout << "previous = " << previous << endl;
+
+        while (!h->empty())
         {
-            h >> next;
+            *h >> next;
+//            cout << "Next = " << next << endl;
 
             if (previous != next)
             {
                 if (lineCount % 5 == 0)
                     cout << endl;
 
-                cout << setw(3) << previous << "  " << setw(3) <<count << "\t";
+                cout << setw(set) << previous << "  " << setw(set) << count << "\t";
 
                 totalCount += count;
                 ++lineCount;
@@ -128,7 +157,7 @@ void Frequency::print()
             previous = next;
         }
 
-        cout << setw(3) << next << "  " << setw(3) << count << "\n";
+        cout << setw(set) << next << "  " << setw(set) << count << "\n";
     }
 
     totalCount += count;
@@ -140,7 +169,7 @@ void Frequency::print()
 
 /*
 //template<typename T>
-void Frequency::print()
+void Frequency<T>::print()
 {
     size_t previous, next, count = 0, totalCount = 0, lineCount = 0;
 
@@ -181,19 +210,19 @@ void Frequency::print()
 */
 
 //template<typename T>
-//Frequency::
+//Frequency<T>::
 //{
 
 //}
 
 //template<typename T>
-//Frequency::
+//Frequency<T>::
 //{
 
 //}
 
 //template<typename T>
-//Frequency::
+//Frequency<T>::
 //{
 
 //}

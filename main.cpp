@@ -27,7 +27,30 @@ char genRandom()
 
 int main()
 {
-    Frequency f;
+//    Heap<size_t> h(false);
+
+//    srand(time(NULL));
+
+//    for (size_t i = 0; i < 100; ++i)
+//    {
+
+//        h << rand() % 100;
+
+//    }
+
+    Heap<string> h(false);
+
+    h << "Hello";
+    h << "World";
+    h << "Hello";
+        h << "World1";
+            h << "World2";
+
+//    cout << h << endl;/
+
+
+    cout << "heap done\n";
+    Frequency<string> f(h);
 
     f.print();
 

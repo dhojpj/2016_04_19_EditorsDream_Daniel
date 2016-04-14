@@ -30,7 +30,8 @@ public:
     void clear();
     unsigned int size();
 
-    void setType(const bool &reheapType);
+    void setType(bool reheapType);
+    bool getType() const;
 
     template<typename U>
     friend ostream& operator<<(ostream& out, Heap<U> &h);
@@ -81,12 +82,9 @@ void Heap<T>::initializeObject()
 }
 
 template<typename T>
-void Heap<T>::setType(const bool &reheapType)
+void Heap<T>::setType(bool reheapType)
 {
-    if (&reheap != &reheapType)
-    {
-        reheap = reheapType;
-    }
+    reheap = reheapType;
 
     if (reheap)
     {
@@ -99,6 +97,12 @@ void Heap<T>::setType(const bool &reheapType)
         reheapDown = MIN_DOWN;
     }
 
+}
+
+template<typename T>
+bool Heap<T>::getType() const
+{
+    return reheap;
 }
 
 
@@ -133,7 +137,7 @@ Heap<T>::~Heap()
 template<typename T>
 Heap<T>& Heap<T>::operator=(const Heap<T> &h)
 {
-    if (*this != h)
+    if (this != &h)
     {
         clear();
         copy(h);
@@ -148,6 +152,8 @@ Heap<T>& Heap<T>::operator>>(T &t)
 {
     t = v->front();
     reheapifyDown();
+
+    return *this;
 }
 
 template<typename T>
@@ -177,10 +183,20 @@ unsigned int Heap<T>::size()
 template<typename T>
 void Heap<T>::copy(const Heap<T> &h)
 {
+    bool t = h.getType();
+
     if (this != &h)
     {
         clear();
+        this->setType(t);
+
         v = h.v;
+
+//        for (size_t i = 0; i < h.v->size(); ++i)
+//        {
+//            v->push_back(h.v->at(i));
+//        }
+
     }
 }
 

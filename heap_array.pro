@@ -7,5 +7,6 @@ SOURCES += main.cpp
 
 HEADERS += \
     heap_vector.h \
-    Frequency.h
+    Frequency.h \
+    RandomTypeGenerator.h
 
