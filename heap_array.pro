@@ -8,5 +8,6 @@ SOURCES += main.cpp
 HEADERS += \
     heap_vector.h \
     Frequency.h \
-    RandomTypeGenerator.h
+    RandomTypeGenerator.h \
+    BookParser.h
 

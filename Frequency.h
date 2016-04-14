@@ -135,12 +135,9 @@ void Frequency<T>::print()
         *h >> previous;
         ++count;
 
-//        cout << "previous = " << previous << endl;
-
         while (!h->empty())
         {
             *h >> next;
-//            cout << "Next = " << next << endl;
 
             if (previous != next)
             {

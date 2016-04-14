@@ -62,9 +62,6 @@ private:
     void copy(const Heap<T> &h);
 };
 
-
-
-
 // constructor calls upon this
 template<typename T>
 void Heap<T>::initializeObject()
@@ -96,7 +93,6 @@ void Heap<T>::setType(bool reheapType)
         reheapUp = MIN_UP;
         reheapDown = MIN_DOWN;
     }
-
 }
 
 template<typename T>
@@ -104,7 +100,6 @@ bool Heap<T>::getType() const
 {
     return reheap;
 }
-
 
 // constructs the vector and reserves memory for the letters
 template<typename T>
@@ -178,25 +173,16 @@ unsigned int Heap<T>::size()
     return v->size();
 }
 
-
-
 template<typename T>
 void Heap<T>::copy(const Heap<T> &h)
 {
-    bool t = h.getType();
-
     if (this != &h)
     {
         clear();
-        this->setType(t);
+
+        setType(h.getType());
 
         v = h.v;
-
-//        for (size_t i = 0; i < h.v->size(); ++i)
-//        {
-//            v->push_back(h.v->at(i));
-//        }
-
     }
 }
 
@@ -428,9 +414,6 @@ istream& operator>>(istream& in, Heap<U> &h)
 
     return in;
 }
-
-
-
 
 
 #endif // HEAP_VECTOR_H
