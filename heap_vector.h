@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <typeinfo>
 using namespace std;
 
 enum HEAP_ERROR {HEAP_EMPTY};
@@ -40,10 +41,11 @@ public:
     friend istream& operator>>(istream& in, Heap<U> &h);
 
 private:
-    vector<T> *v;
+    vector<size_t> *v_weak_pointers;
+    vector<T> *v_raw_data;
     unsigned int findParent(unsigned int n);
+    bool reheap; // MIN (ascending order) false or MAX (descending order) true
 
-    bool reheap; // if the heap is MAX (descending order) or MIN (ascending order)
     sort heap_sort[4]; // function pointers
     HEAP_TYPE reheapUp, reheapDown; // to call function pointers
 
@@ -60,14 +62,18 @@ private:
 
     void initializeObject();
     void copy(const Heap<T> &h);
+
 };
 
 // constructor calls upon this
 template<typename T>
 void Heap<T>::initializeObject()
 {
-    v = new vector<T>;
-    v->reserve(1);
+    v_weak_pointers = new vector<size_t>;
+    v_weak_pointers->reserve(10);
+
+    v_raw_data = new vector<T>;
+    v_raw_data->reserve(10);
 
     setType(reheap);
 
@@ -75,7 +81,6 @@ void Heap<T>::initializeObject()
     heap_sort[MAX_DOWN] = &Heap<T>::reheapifyDown_MAX;
     heap_sort[MIN_UP] = &Heap<T>::reheapifyUp_MIN;
     heap_sort[MIN_DOWN] = &Heap<T>::reheapifyDown_MIN;
-
 }
 
 template<typename T>
@@ -113,7 +118,7 @@ template<typename T>
 Heap<T>::Heap(const T &t)
 {
     initializeObject();
-    v->push_back(t);
+    *this << t;
 }
 
 template<typename T>
@@ -145,7 +150,7 @@ Heap<T>& Heap<T>::operator=(const Heap<T> &h)
 template<typename T>
 Heap<T>& Heap<T>::operator>>(T &t)
 {
-    t = v->front();
+    t = v_raw_data->at(v_weak_pointers->front());
     reheapifyDown();
 
     return *this;
@@ -154,8 +159,9 @@ Heap<T>& Heap<T>::operator>>(T &t)
 template<typename T>
 Heap<T>& Heap<T>::operator<<(const T &t)
 {
-    v->push_back(t);
+    v_raw_data->push_back(t);
 
+    v_weak_pointers->push_back(v_raw_data->size() - 1);
     reheapifyUp();
 
     return *this;
@@ -164,13 +170,13 @@ Heap<T>& Heap<T>::operator<<(const T &t)
 template<typename T>
 bool Heap<T>::empty()
 {
-    return !(v->size());
+    return !(v_weak_pointers->size());
 }
 
 template<typename T>
 unsigned int Heap<T>::size()
 {
-    return v->size();
+    return v_weak_pointers->size();
 }
 
 template<typename T>
@@ -182,16 +188,18 @@ void Heap<T>::copy(const Heap<T> &h)
 
         setType(h.getType());
 
-        v = h.v;
+        v_weak_pointers = h.v_weak_pointers;
+        v_raw_data = h.v_raw_data;
     }
 }
 
 template<typename T>
 void Heap<T>::clear()
 {
-    v->clear();
-    reheap = true;
-    setType(reheap);
+    v_weak_pointers->clear();
+    v_raw_data->clear();
+//    reheap = true;
+//    setType(reheap);
 }
 
 // make sure it's not the root to begin with
@@ -209,7 +217,7 @@ unsigned int Heap<T>::findParent(unsigned int n)
 template<typename T>
 void Heap<T>::reheapifyUp()
 {
-    if (v->size() == 0)
+    if (v_weak_pointers->size() == 0)
     {
         cout << "reheapifyUp error exception\n";
         throw HEAP_EMPTY;
@@ -218,7 +226,7 @@ void Heap<T>::reheapifyUp()
     // compare with the parent
     unsigned int parent, child;
 
-    child = v->size() - 1;
+    child = v_weak_pointers->size() - 1; // the position it was inserted at (the end of tree)
     parent = findParent(child);
 
     (this->*heap_sort[reheapUp])(parent, child);
@@ -228,15 +236,15 @@ void Heap<T>::reheapifyUp()
 template<typename T>
 void Heap<T>::reheapifyDown()
 {
-    if (v->size() == 0)
+    if (v_weak_pointers->size() == 0)
     {
         cout << "reheapifyDown error exception\n";
 
         throw HEAP_EMPTY;
     }
-    else if (v->size() == 1)
+    else if (v_weak_pointers->size() == 1)
     {
-        v->pop_back();
+        v_weak_pointers->pop_back(); // we leave the raw data alone until destructor time
         return;
     }
 
@@ -244,8 +252,9 @@ void Heap<T>::reheapifyDown()
     unsigned int parent, childChosen;
 
     // swap the last with the first
-    swap(v->at(0), v->at(v->size() - 1));
-    v->pop_back();
+    swap(v_weak_pointers->at(0), v_weak_pointers->at(v_weak_pointers->size() - 1));
+
+    v_weak_pointers->pop_back();
 
     parent = 0;
 
@@ -257,10 +266,10 @@ void Heap<T>::reheapifyDown()
 template<typename T>
 void Heap<T>::reheapifyUp_MAX(unsigned int &p, unsigned int &c)
 {
-    while(v->at(c) > v->at(p))
+    while(v_raw_data->at(v_weak_pointers->at(c)) > v_raw_data->at(v_weak_pointers->at(p)))
     {
         // if greater swap
-        swap(v->at(c), v->at(p));
+        swap(v_weak_pointers->at(c), v_weak_pointers->at(p));
 
         c = p;
         p = findParent(c);
@@ -271,15 +280,14 @@ void Heap<T>::reheapifyUp_MAX(unsigned int &p, unsigned int &c)
 template<typename T>
 void Heap<T>::reheapifyUp_MIN(unsigned int &p, unsigned int &c)
 {
-    while(v->at(c) < v->at(p))
+    while(v_raw_data->at(v_weak_pointers->at(c)) < v_raw_data->at(v_weak_pointers->at(p)))
     {
         // if greater swap
-        swap(v->at(c), v->at(p));
+        swap(v_weak_pointers->at(c), v_weak_pointers->at(p));
 
         c = p;
         p = findParent(c);
     }
-
 }
 
 // called by reheapifyDown() using the heap_sort function pointer array
@@ -291,10 +299,10 @@ void Heap<T>::reheapifyDown_MAX(unsigned int &p, unsigned int &c)
 
     chooseChild_MAX(checkLeft, checkRight, p, c);
 
-    while(v->at(c) > v->at(p))
+    while(v_raw_data->at(v_weak_pointers->at(c)) > v_raw_data->at(v_weak_pointers->at(p)))
     {
         // if greater swap
-        swap(v->at(p), v->at(c));
+        swap(v_weak_pointers->at(c), v_weak_pointers->at(p));
 
         p = c;
 
@@ -313,10 +321,10 @@ void Heap<T>::reheapifyDown_MIN(unsigned int &p, unsigned int &c)
 
     chooseChild_MIN(checkLeft, checkRight, p, c);
 
-    while(v->at(c) < v->at(p))
+    while(v_raw_data->at(v_weak_pointers->at(c)) < v_raw_data->at(v_weak_pointers->at(p)))
     {
         // if greater swap
-        swap(v->at(p), v->at(c));
+        swap(v_weak_pointers->at(c), v_weak_pointers->at(p));
 
         p = c;
 
@@ -330,8 +338,8 @@ void Heap<T>::reheapifyDown_MIN(unsigned int &p, unsigned int &c)
 template<typename T>
 void Heap<T>::checkChildrenExist(bool &left, bool &right, const unsigned int &parent)
 {
-    left = 2*parent + 1 < v->size() ? true : false;
-    right = 2*parent + 2 < v->size() ? true : false;
+    left = 2*parent + 1 < v_weak_pointers->size() ? true : false;
+    right = 2*parent + 2 < v_weak_pointers->size() ? true : false;
 }
 
 // called by reheapifyDown() using the heap_sort function pointer array
@@ -341,7 +349,7 @@ void Heap<T>::chooseChild_MAX(const bool &left, const bool &right, const unsigne
     // if right exists, then left automatically exists
     if (right)
     {
-        if (v->at(2*parent + 2) > v->at(2*parent + 1))
+        if (v_raw_data->at(v_weak_pointers->at(2*parent + 2)) > v_raw_data->at(v_weak_pointers->at(2*parent + 1)))
         {
             child = 2*parent + 2;
         }
@@ -367,7 +375,7 @@ void Heap<T>::chooseChild_MIN(const bool &left, const bool &right, const unsigne
     // if right exists, then left automatically exists
     if (right)
     {
-        if (v->at(2*parent + 2) < v->at(2*parent + 1))
+        if (v_raw_data->at(v_weak_pointers->at(2*parent + 2)) < v_raw_data->at(v_weak_pointers->at(2*parent + 1)))
         {
             child = 2*parent + 2;
         }
@@ -390,12 +398,12 @@ template<typename U>
 ostream& operator<<(ostream& out, Heap<U> &h)
 {
     unsigned int count = 0;
-    while (!h.v->empty())
+    while (!h.v_weak_pointers->empty())
     {
         if (count % 5 == 0)
             out << endl;
 
-        out << setw(3) << h.v->front() << " ";
+        out << setw(3) << h.v_raw_data->at(h.v_weak_pointers->front()) << " ";
 
         h.reheapifyDown();
         ++count;

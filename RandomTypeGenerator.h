@@ -16,7 +16,7 @@ using namespace std;
 class RandomTypeGenerator
 {
 public:
-    RandomTypeGenerator();
+    RandomTypeGenerator(bool m = true);
 //    RandomTypeGenerator(TYPE_OF_DATA t);
     ~RandomTypeGenerator();
 
@@ -28,15 +28,18 @@ public:
 //    void setType(TYPE_OF_DATA t);
 //    void generateData();
 private:
+    bool MAX_or_MIN;
 //    TYPE_OF_DATA type;
 //    fptr genPtrs[sizeOfGenPtrs];
 //    size_t sizeOfGenPtrs = 2;
 };
 
 
-RandomTypeGenerator::RandomTypeGenerator()
+RandomTypeGenerator::RandomTypeGenerator(bool m)
 {
     srand(time(NULL));
+    MAX_or_MIN = m;
+
 }
 
 RandomTypeGenerator::~RandomTypeGenerator()
@@ -46,11 +49,11 @@ RandomTypeGenerator::~RandomTypeGenerator()
 
 Heap<int>& RandomTypeGenerator::generateIntegers()
 {
-    Heap<int>* h = new Heap<int>(false);
+    Heap<int>* h = new Heap<int>(MAX_or_MIN);
 
     for (size_t i = 0; i < 600000; ++i)
     {
-        *h << rand() % 500;
+        *h << rand() % 100;
     }
 
     return *h;
@@ -58,7 +61,7 @@ Heap<int>& RandomTypeGenerator::generateIntegers()
 
 Heap<string>& RandomTypeGenerator::generateStrings()
 {
-    Heap<string>* h = new Heap<string>(false);
+    Heap<string>* h = new Heap<string>(MAX_or_MIN);
 
     char alphanum[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -68,7 +71,7 @@ Heap<string>& RandomTypeGenerator::generateStrings()
 
     string str = "";
 
-    for (size_t i = 0; i < 100; ++i)
+    for (size_t i = 0; i < 5000; ++i)
     {
         for (size_t j = 0; j < 10; ++j)
         {
