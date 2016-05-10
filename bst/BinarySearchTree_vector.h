@@ -135,9 +135,23 @@ BinarySearchTree<T>& BinarySearchTree<T>::operator<<(const T &d)
 
     cout << "inserted " << d << " at index " << index << "\n";
 
-//    exit(2);
 
-    rebalance(index);
+    int p, gp, ggp;
+
+    p = (index - 1) / 2;
+    gp = (p - 1) / 2;
+    ggp = (gp - 1) / 2;
+
+    cout << "p = " << p << "\tgp = " << gp << "\tggp = " << ggp << endl;
+
+    if (p < 0 || gp < 0 || ggp < 0)
+    {
+        exit (20);
+    }
+
+    rebalance(p);
+    rebalance(gp);
+    rebalance(ggp);
     return *this;
 }
 
@@ -153,9 +167,11 @@ BinarySearchTree<T>& BinarySearchTree<T>::operator>>(T &d)
 template<typename T>
 size_t BinarySearchTree<T>::insert(const T &d, size_t root)
 {
+    cout << "d = " << d << " at node = " << root << endl;
     if (v_raw_data->size() == 0)
     {
-        cout << "first\n";
+        cout << "first\t";
+        cout << "d = " << d << " at node = " << root << endl;
         node n;
         n.data = d;
         n.count = 1;
@@ -192,6 +208,7 @@ size_t BinarySearchTree<T>::insert(const T &d, size_t root)
         root = 2*root + 2;
         insert(d, root);
     }
+
 }
 
 
@@ -357,16 +374,11 @@ template<typename T>
 void BinarySearchTree<T>::leftRotate(size_t n)
 {
 
-    cout << "rotating left\t" << n << endl;
-//    size_t right, rl, rr, rll, rlr, rrl, rrr;
+    cout << "########\nrotating left from node " << n << endl;
 
-//    right = 2*n + 2;
-//    rl = 2*right + 1;
-//    rr = 2*right + 2;
-//    rll = 2*rl + 1;
-//    rlr = 2*rl + 2;
-//    rrl = 2*rr + 1;
-//    rrr = 2*rr + 2;
+    cout << "printing before left rotation" << endl;
+    print(cout);
+    cout << endl;
 
 
     size_t l, r, ll, lr, rl, rr;
@@ -380,42 +392,12 @@ void BinarySearchTree<T>::leftRotate(size_t n)
 
     createBranches(rr);
 
-
-//    if ((v_raw_data->at(rll))).count != -1)
-//    {
-//        cout << "\t\t" << rll << " not empty!\n";
-//    }
-//    else
-//    {
-//            cout << "\t\t" << rll << "  empty!\n";
-//    }
-
-
-//    if ((v_raw_data->at(rll))).count != -1)
-//    {
-//        cout << "\t\t" << rlr << " not empty!\n";
-//    }
-//    else
-//    {
-//            cout << "\t\t" << rlr << "  empty!\n";
-//    }
-
-
-
     swap(v_raw_data->at(n), v_raw_data->at(l));
     swap(v_raw_data->at(n), v_raw_data->at(r));
     swap(v_raw_data->at(r), v_raw_data->at(rr));
     swap(v_raw_data->at(lr), v_raw_data->at(ll));
 
-//    swap(v_raw_data->at(right), v_raw_data->at(rl));
-//    swap(v_raw_data->at(rll), v_raw_data->at(rrl));
-//    swap(v_raw_data->at(right), v_raw_data->at(rlr));
-//    swap(v_raw_data->at(rll), v_raw_data->at(rlr));
-//    swap(v_raw_data->at(right), v_raw_data->at(rrr));
-//    swap(v_raw_data->at(right), v_raw_data->at(rr));
-
-
-    cout << "printing after left rotation" << endl;
+    cout << "**********\nprinting after left rotation" << endl;
     print(cout);
     cout << endl;
 }
@@ -507,10 +489,7 @@ void BinarySearchTree<T>::rebalance(size_t n)
     size_t left = 2*n + 1, right = 2*n + 2;
     int treeBalance, leftBalance, rightBalance, parent;
 
-
-
     treeBalance = balance(n);
-
 
     cout << "balance = " << treeBalance << endl;
 
@@ -519,15 +498,12 @@ void BinarySearchTree<T>::rebalance(size_t n)
     {
         if (n == 0)
         {
-            cout << "stop\n";
             return;
         }
         else
         {
             parent = (int)(n-1)/2;
-            cout << "else\n";
             rebalance(parent);
-
         }
     }
 
