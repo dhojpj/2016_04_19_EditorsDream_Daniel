@@ -1,55 +1,5 @@
 #ifndef BINARYSEARCHTREE_VECTOR_H
 #define BINARYSEARCHTREE_VECTOR_H
-
-// since we're using nodes, calling the data of the node returns the value in template T
-
-/*
-void preOrder(size_t rootIndexValue)
-{
-if (rootIndexValue == -1)
-return;
-
-cout << data;
-
-preOrder(left)
-preOrder(right)
-}
-
-
-void inOrder(size_t rootIndexValue)
-{
-if (rootIndexValue == -1)
-return;
-
-preOrder(thisleft)
-cout << data;
-
-preOrder(thisright)
-}
-
-void postOrder(size_t rootIndexValue)
-{
-if (rootIndexValue == -1)
-return;
-
-postOrder(thisleft)
-postOrder(thisright)
-cout << data;
-
-}
-
-
-
-
-leftChild
-(2*n) + 1
-
-
-rightChild
-(2*n) + 2
-
- */
-
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -78,18 +28,12 @@ struct node
 public:
     typedef void (BinarySearchTree<T>::*fptr)(size_t n, ostream &out) ;
 
-//    typedef void (BinarySearchTree<T>::*fptr)() const;
-
-
-int depth(size_t farthestNode, size_t root);
-size_t highestNode(size_t n);
+    int depth(size_t farthestNode, size_t root);
+    size_t highestNode(size_t n);
 
 
     BinarySearchTree(BST_TRAVERSAL_TYPE t = IN_ORDER);
-//    BinarySearchTree(const T &d);
-//    BinarySearchTree(const BinarySearchTree<T> &other);
     ~BinarySearchTree();
-//    BinarySearchTree<T>& operator=(const BinarySearchTree<T> &other);
 
     size_t insert(const T &d, size_t root);
 
@@ -122,7 +66,7 @@ size_t highestNode(size_t n);
 
 private:
     vector<node> *v_raw_data;
-    vector<size_t> *v_weak_pointers;
+//    vector<size_t> *v_weak_pointers;
 
 
     bool uh_oh;
@@ -154,23 +98,6 @@ private:
     void checkChildrenExist(size_t n, bool &l, bool &r);
     void checkVoidChildren(size_t p, bool &l, bool &r);
 
-//    static WHICH_CHILD direction[2];
-
-//    void copy(node<T> *r);
-//    void nukem(node<T>* &r);
-
-
-//    bool balanced(node<T> *r);
-//    node<T>* theMost(node<T>*r, WHICH_CHILD child) const;
-
-//    void initialize(node<T> *n, BST_TRAVERSAL_TYPE  t );
-//    size_t totalNodes(node<T> *r);
-//    size_t totalDataItems(node<T> *r);
-
-//    node<T>* createRightVine(node<T>* r);
-//    node<T>* balanceVine(node<T>* r, size_t nodeCount);
-//    ostream& print(ostream &out = cout) const;
-
     void preOrder(size_t n, ostream &out) ;
     void inOrder(size_t n, ostream &out) ;
     void postOrder(size_t n, ostream &out) ;
@@ -189,67 +116,28 @@ BinarySearchTree<T>::BinarySearchTree(BST_TRAVERSAL_TYPE t)
     current.data = 0;
     traversalType = t;
     v_raw_data = new vector<node>;
-    v_weak_pointers = new vector<size_t>;
 
     traverse[PRE_ORDER] = &BinarySearchTree<T>::preOrder;
     traverse[IN_ORDER] = &BinarySearchTree<T>::inOrder;
     traverse[POST_ORDER] = &BinarySearchTree<T>::postOrder;
-
 }
-
-//template<typename T>
-//BinarySearchTree::BinarySearchTree(const T &d)
-//{
-//    BinarySearchTree(IN_ORDER);
-
-//}
 
 template<typename T>
 BinarySearchTree<T>::~BinarySearchTree()
 {
-    v_weak_pointers->clear();
     v_raw_data->clear();
 }
-
-//template<typename T>
-//void BinarySearchTree<T>::setVectorType()
-//{
-//    if (typeOfTemplate[0] == 'P' || typeOfTemplate == typeid(bool).name()
-//        || typeOfTemplate == typeid(short).name() || typeOfTemplate == typeid(unsigned short).name()
-//        || typeOfTemplate == typeid(int).name() || typeOfTemplate == typeid(unsigned int).name()
-//        || typeOfTemplate == typeid(long).name() || typeOfTemplate == typeid(unsigned long).name()
-//        || typeOfTemplate == typeid(double).name() || typeOfTemplate == typeid(float).name()
-//        || typeOfTemplate == typeid(char).name()
-//        )
-//    {
-//        regularSort = true;
-//    }
-//    else
-//    {
-//        regularSort = false;
-//    }
-//}
 
 template<typename T>
 BinarySearchTree<T>& BinarySearchTree<T>::operator<<(const T &d)
 {
-//    cout << "operator<<\n";
     int index = insert(d, 0);
 
-    int p = (index-1)/2, gp = (p-1)/2;
+    cout << "inserted " << d << " at index " << index << "\n";
 
-    if (gp < 0)
-    {
-        gp = 0;
-    }
+//    exit(2);
 
-    cout << "index = " << index << "\t";
-//    rebalance(gp);
-
-    rebalance(gp);    cout << "\t\tp = " << gp <<  " \t done"<<endl;
-
-    rebalance(0);
-cout << "\t\t = " << 0 <<  " \t done"<<endl;
+    rebalance(index);
     return *this;
 }
 
@@ -257,7 +145,6 @@ cout << "\t\t = " << 0 <<  " \t done"<<endl;
 template<typename T>
 BinarySearchTree<T>& BinarySearchTree<T>::operator>>(T &d)
 {
-//    d = v->front();
 
 
 }
@@ -268,67 +155,43 @@ size_t BinarySearchTree<T>::insert(const T &d, size_t root)
 {
     if (v_raw_data->size() == 0)
     {
-//        cout << "first\n";
+        cout << "first\n";
         node n;
         n.data = d;
         n.count = 1;
 
         v_raw_data->push_back(n);
-        v_weak_pointers->push_back(v_raw_data->size() - 1);
 
         return v_raw_data->size() - 1;
     }
-//    int count = 0;
-    while (root > v_weak_pointers->size() - 1)
+    while (root > v_raw_data->size() - 1)
     {
-
-//        cout << "created nodes\t"<< ++count <<endl;
         node placeHolder;
         placeHolder.count = -1;
-
         v_raw_data->push_back(placeHolder);
-        v_weak_pointers->push_back(v_raw_data->size() - 1);
     }
 
-    if ((v_raw_data->at(v_weak_pointers->at(root))).count == -1)
+    if (v_raw_data->at(root).count == -1)
     {
-        v_raw_data->at(v_weak_pointers->at(root)).data = d;
-        v_raw_data->at(v_weak_pointers->at(root)).count = 1;
-//        cout << "inserted at " << v_weak_pointers->at(root) << endl;
-        return v_weak_pointers->at(root);
+        v_raw_data->at(root).data = d;
+        v_raw_data->at(root).count = 1;
+        return root;
     }
-    else if (v_raw_data->at(v_weak_pointers->at(root)).data == d)
+    else if (v_raw_data->at(root).data == d)
     {
-        // if node exists; increment ++count
-        ++(v_raw_data->at(v_weak_pointers->at(root)).count);
-
-//        cout << "inserted at " << v_weak_pointers->at(root) << endl;
-
-        return v_weak_pointers->at(root);
+        ++(v_raw_data->at(root).count);
+        return root;
     }
-    else if (v_raw_data->at(v_weak_pointers->at(root)).data > d) // go left
+    else if (v_raw_data->at(root).data > d) // go left
     {
         root = 2*root + 1;
-//        cout << "going left " << root << endl;
-
-            insert(d, root);
+        insert(d, root);
     }
-    else if (v_raw_data->at(v_weak_pointers->at(root)).data < d)
+    else if (v_raw_data->at(root).data < d)
     {
         root = 2*root + 2;
-//        cout << "going right " << root << endl;
-
-            insert(d, root);
+        insert(d, root);
     }
-
-//    cout << "temp of " << temp << endl;
-
-
-    /*size_t index =*/
-
-//    return 0;
-
-//    return index;
 }
 
 
@@ -337,7 +200,7 @@ size_t BinarySearchTree<T>::insert(const T &d, size_t root)
 template<typename T>
 void BinarySearchTree<T>::preOrder(size_t n, ostream &out)
 {
-    if(v_raw_data->at(v_weak_pointers->at(n)).count == -1)
+    if(v_raw_data->at(n).count == -1)
     {
         return;
     }
@@ -346,9 +209,9 @@ void BinarySearchTree<T>::preOrder(size_t n, ostream &out)
     right = 2*n + 2;
 
     inOrder(left, out);
-    out << v_raw_data->at(v_weak_pointers->at(n)).data
+    out << v_raw_data->at(n).data
            << "|"
-              << v_raw_data->at(v_weak_pointers->at(n)).count << endl ;
+              << v_raw_data->at(n).count << endl ;
     inOrder(right,out);
 }
 
@@ -356,7 +219,7 @@ void BinarySearchTree<T>::preOrder(size_t n, ostream &out)
 template<typename T>
 void BinarySearchTree<T>::inOrder(size_t n, ostream &out)
 {
-    if(v_raw_data->at(v_weak_pointers->at(n)).count == -1)
+    if(v_raw_data->at(n).count == -1)
     {
         return;
     }
@@ -365,47 +228,39 @@ void BinarySearchTree<T>::inOrder(size_t n, ostream &out)
     left = 2*n + 1;
     right = 2*n + 2;
 
-    if (left < v_weak_pointers->size())
+    if (left < v_raw_data->size())
     {
-//        cout << "going right of\t" << n << endl;
         inOrder(left, out);
     }
 
-//    cout << "current of\t" << n << endl;
 
-    out << v_raw_data->at(v_weak_pointers->at(n)).data
-           << "|"
-              << v_raw_data->at(v_weak_pointers->at(n)).count << "  ";
+    out << n << "|" << v_raw_data->at(n).data << "|" << v_raw_data->at(n).count << "   ";
 
-    if (v_raw_data->at(v_weak_pointers->at(n)).data < current.data)
+    if (v_raw_data->at(n).data < current.data)
     {
-//        cout << "uh oh\n";
         uh_oh = true;
-        cout <<  v_raw_data->at(v_weak_pointers->at(n)).data
+        cout <<  v_raw_data->at(n).data
                  << " is not bigger than " << current.data << "\t";
         exit(1);
     }
     else
     {
-        current.data = v_raw_data->at(v_weak_pointers->at(n)).data;
+        current.data = v_raw_data->at(n).data;
     }
 
-    count += v_raw_data->at(v_weak_pointers->at(n)).count;
+    count += v_raw_data->at(n).count;
 
-    if (right < v_weak_pointers->size())
+    if (right < v_raw_data->size())
     {
-//        cout << "going right of\t" << n << endl;
-//        cout << right << " is " << n << " right child\n";
         inOrder(right,out);
     }
-
 
 }
 
 template<typename T>
 void BinarySearchTree<T>::postOrder(size_t n, ostream &out)
 {
-    if(v_raw_data->at(v_weak_pointers->at(n)).count == -1)
+    if(v_raw_data->at(n).count == -1)
     {
         return;
     }
@@ -414,9 +269,9 @@ void BinarySearchTree<T>::postOrder(size_t n, ostream &out)
     right = 2*n + 2;
 
     inOrder(left, out);
-    out << v_raw_data->at(v_weak_pointers->at(n)).data
+    out << v_raw_data->at(n).data
            << "|"
-              << v_raw_data->at(v_weak_pointers->at(n)).count << " " ;
+              << v_raw_data->at(n).count << " " ;
     inOrder(right,out);
 }
 
@@ -433,48 +288,61 @@ void BinarySearchTree<T>::rightRotate(size_t n)
     // left imbalance
     // +2,+1 = right
 
-        cout << "rotating right\t" << n << endl;
-    size_t left, right, ll, lr, rl, rr;//lll, llr, lrl, lrr;
+    cout << "before rotate right print\n";
+    this->print(cout);
+    cout << endl << endl;
 
-    left = 2*n + 1;
-    right = 2*n + 2;
-    ll = 2*left + 1;
-    lr = 2*left + 2;
-    rl = 2*right + 1;
-    rr = 2*right + 2;
-//    lll = 2*ll + 1;
-//    llr = 2*ll + 2;
-//    lrl = 2*lr + 1;
-//    lrr = 2*lr + 2;
+    size_t l, r, ll, lr, rl, rr, lll, llr;
 
-    createBranches(rr);
+    l = 2*n + 1;
+    r = 2*n + 2;
+    ll = 2*l + 1;
+    lr = 2*l + 2;
+    rl = 2*r + 1;
+    rr = 2*r + 2;
+    lll = 2*ll + 1;
+    llr = 2*ll + 2;
 
-//    for (size_t i = left; i < lrr; ++i)
+    createBranches(llr);
+
+
+    if (v_raw_data->at(rl).count != -1 || v_raw_data->at(rr).count != -1)
+    {
+        cout << "before rotation\nv_raw_data->at(rl).count != -1 || v_raw_data->at(rr).count != -1" << endl;
+        exit(5);
+    }
+
+
+
+
+    // 0 1 2 3 4 5 6 7
+    // 1 3 0 7 8 4 2 x
+
+    node temp = v_raw_data->at(n);
+//    cout << "temp = " << temp.data << endl;
+
+    v_raw_data->at(n) = v_raw_data->at(l);
+    v_raw_data->at(rr) = v_raw_data->at(r);
+    v_raw_data->at(r) = temp;
+    v_raw_data->at(rl) = v_raw_data->at(lr);
+    v_raw_data->at(lr) = v_raw_data->at(llr);
+    v_raw_data->at(l) = v_raw_data->at(ll);
+    v_raw_data->at(ll) = v_raw_data->at(lll);
+
+
+    node temp2;
+    temp2.count = -1;
+
+    v_raw_data->at(lll) = temp2;
+    v_raw_data->at(llr) = temp2;
+
+//    v_raw_data->erase(v_raw_data->begin() + 111 - 1, v_raw_data->begin() + llr - 1);
+//    if (v_raw_data->at(lll).count != -1 || v_raw_data->at(llr).count != -1)
 //    {
-//        if ((v_raw_data->at(v_weak_pointers->at(i))).count != -1)
-//        {
-//            cout << "\t\t" << i << " not empty!\n";
-//        }
-
+//        cout << "after rotation\nv_raw_data->at(lll).count == -1 || v_raw_data->at(llr).count == -1" << endl;
+//        exit(5);
 //    }
 
-
-    swap(v_weak_pointers->at(n), v_weak_pointers->at(left));
-    swap(v_weak_pointers->at(lr), v_weak_pointers->at(rl));
-    swap(v_weak_pointers->at(lr), v_weak_pointers->at(rr));
-    swap(v_weak_pointers->at(right), v_weak_pointers->at(rr));
-    swap(v_weak_pointers->at(left), v_weak_pointers->at(right));
-    swap(v_weak_pointers->at(left), v_weak_pointers->at(ll));
-
-
-//    swap(v_weak_pointers->at(left), v_weak_pointers->at(ll));
-
-
-//    swap(v_weak_pointers->at(ll), v_weak_pointers->at(lr));
-//    swap(v_weak_pointers->at(lll), v_weak_pointers->at(lrl));
-//    swap(v_weak_pointers->at(lrl), v_weak_pointers->at(lrr));
-//    swap(v_weak_pointers->at(ll), v_weak_pointers->at(lrr));
-//    swap(v_weak_pointers->at(llr), v_weak_pointers->at(lrl));
 
 //    cout << "rotate right print\n";
 //    this->print(cout);
@@ -513,7 +381,7 @@ void BinarySearchTree<T>::leftRotate(size_t n)
     createBranches(rr);
 
 
-//    if ((v_raw_data->at(v_weak_pointers->at(rll))).count != -1)
+//    if ((v_raw_data->at(rll))).count != -1)
 //    {
 //        cout << "\t\t" << rll << " not empty!\n";
 //    }
@@ -523,7 +391,7 @@ void BinarySearchTree<T>::leftRotate(size_t n)
 //    }
 
 
-//    if ((v_raw_data->at(v_weak_pointers->at(rll))).count != -1)
+//    if ((v_raw_data->at(rll))).count != -1)
 //    {
 //        cout << "\t\t" << rlr << " not empty!\n";
 //    }
@@ -534,17 +402,17 @@ void BinarySearchTree<T>::leftRotate(size_t n)
 
 
 
-    swap(v_weak_pointers->at(n), v_weak_pointers->at(l));
-    swap(v_weak_pointers->at(n), v_weak_pointers->at(r));
-    swap(v_weak_pointers->at(r), v_weak_pointers->at(rr));
-    swap(v_weak_pointers->at(lr), v_weak_pointers->at(ll));
+    swap(v_raw_data->at(n), v_raw_data->at(l));
+    swap(v_raw_data->at(n), v_raw_data->at(r));
+    swap(v_raw_data->at(r), v_raw_data->at(rr));
+    swap(v_raw_data->at(lr), v_raw_data->at(ll));
 
-//    swap(v_weak_pointers->at(right), v_weak_pointers->at(rl));
-//    swap(v_weak_pointers->at(rll), v_weak_pointers->at(rrl));
-//    swap(v_weak_pointers->at(right), v_weak_pointers->at(rlr));
-//    swap(v_weak_pointers->at(rll), v_weak_pointers->at(rlr));
-//    swap(v_weak_pointers->at(right), v_weak_pointers->at(rrr));
-//    swap(v_weak_pointers->at(right), v_weak_pointers->at(rr));
+//    swap(v_raw_data->at(right), v_raw_data->at(rl));
+//    swap(v_raw_data->at(rll), v_raw_data->at(rrl));
+//    swap(v_raw_data->at(right), v_raw_data->at(rlr));
+//    swap(v_raw_data->at(rll), v_raw_data->at(rlr));
+//    swap(v_raw_data->at(right), v_raw_data->at(rrr));
+//    swap(v_raw_data->at(right), v_raw_data->at(rr));
 
 
     cout << "printing after left rotation" << endl;
@@ -572,8 +440,8 @@ void BinarySearchTree<T>::rightLeftRotate(size_t n)
 
 //    createBranches(farthestRight);
 
-//    swap(v_weak_pointers->at(right), v_weak_pointers->at(farthestRight));
-//    swap(v_weak_pointers->at(right), v_weak_pointers->at(farthestLeft));
+//    swap(v_raw_data->at(right), v_raw_data->at(farthestRight));
+//    swap(v_raw_data->at(right), v_raw_data->at(farthestLeft));
 
 //    leftRotate((n-1)/2);
     leftRotate(n);
@@ -596,8 +464,8 @@ void BinarySearchTree<T>::leftRightRotate(size_t n)
 
 //    createBranches(farthestRight);
 
-//    swap(v_weak_pointers->at(left), v_weak_pointers->at(farthestRight));
-//    swap(v_weak_pointers->at(farthestLeft), v_weak_pointers->at(farthestRight));
+//    swap(v_raw_data->at(left), v_raw_data->at(farthestRight));
+//    swap(v_raw_data->at(farthestLeft), v_raw_data->at(farthestRight));
 
 //    size_t left = 2*n + 2;//, leftRight = 2*left + 2;
 
@@ -637,11 +505,32 @@ template<typename T>
 void BinarySearchTree<T>::rebalance(size_t n)
 {
     size_t left = 2*n + 1, right = 2*n + 2;
-    int treeBalance, leftBalance, rightBalance;
-//    bool error = false;
+    int treeBalance, leftBalance, rightBalance, parent;
+
+
 
     treeBalance = balance(n);
-//    cout << "rebalancing " << n << "\ttree balance is " << treeBalance << endl;
+
+
+    cout << "balance = " << treeBalance << endl;
+
+
+    if (treeBalance == 1 || treeBalance == 0 || treeBalance == -1)
+    {
+        if (n == 0)
+        {
+            cout << "stop\n";
+            return;
+        }
+        else
+        {
+            parent = (int)(n-1)/2;
+            cout << "else\n";
+            rebalance(parent);
+
+        }
+    }
+
 
 
     if (treeBalance == 2)
@@ -649,7 +538,7 @@ void BinarySearchTree<T>::rebalance(size_t n)
 //        error = true;
         leftBalance = balance(left);
         cout << "left imbalance\t" << leftBalance << endl;
-        if (leftBalance > 1) //|| leftBalance < -1)
+/*        if (leftBalance > 1) //|| leftBalance < -1)
         {
             cout << "leftBalance > 1" << endl;
 
@@ -683,14 +572,14 @@ void BinarySearchTree<T>::rebalance(size_t n)
 //            leftRotate(2*n + 2);
             return;
         }
-        else if (leftBalance == 1)
+        else */
+        if (leftBalance == 1)
         {
             cout << "left imbalance 2,1\trotate right\n";
 
-                                    cout << endl;
-                                    print(cout);
-                                    cout << endl;
-
+//                                    cout << endl;
+//                                    print(cout);
+//                                    cout << endl;
             //    +2,+1 = right
             // right rotate starts at left
             rightRotate(n);
@@ -700,9 +589,9 @@ void BinarySearchTree<T>::rebalance(size_t n)
             cout << "left imbalance 2,-1\trotate left, right\n";
             //    +2,-1 = left -> then auto right
 
-                                    cout << endl;
-                                    print(cout);
-                                    cout << endl;
+//                                    cout << endl;
+//                                    print(cout);
+//                                    cout << endl;
 //                                    exit(1);
             leftRightRotate(left);                      //xxxxxxxxxxxxxxxxxxx
 //            leftRotate(2*n + 2);
@@ -717,7 +606,7 @@ void BinarySearchTree<T>::rebalance(size_t n)
         cout << "right imbalance \t" << rightBalance << endl;
 //        cout << "double right imbalance -2,+-2\n";
 
-        if (rightBalance > 1) //|| rightBalance < -1)
+/*        if (rightBalance > 1) //|| rightBalance < -1)
         {
             cout << "rightBalance > 1\n";
 
@@ -749,13 +638,14 @@ void BinarySearchTree<T>::rebalance(size_t n)
 //                                cout << endl;
             return;
         }
-        else if (rightBalance == 1)
+        else */
+        if (rightBalance == 1)
         {
             cout << "RIGHT imbalance -2,1\trotate right,left\n";
 //            rightLeftRotate(n);
-                                    cout << endl;
-                                    print(cout);
-                                    cout << endl;
+//                                    cout << endl;
+//                                    print(cout);
+//                                    cout << endl;
             rightLeftRotate(right);
 //            leftRotate(n);
         }
@@ -763,9 +653,9 @@ void BinarySearchTree<T>::rebalance(size_t n)
         {
             cout << "RIGHT imbalance -2,-1\trotate left\n";
 //            cout << "right -1\n";
-            cout << endl;
-            print(cout);
-            cout << endl;
+//            cout << endl;
+//            print(cout);
+//            cout << endl;
             leftRotate(n);                                      // +++++++++
         }
 
@@ -850,7 +740,7 @@ void BinarySearchTree<T>::checkChildrenExist(size_t n, bool &l, bool &r)
 {
     size_t left = 2*n + 1, right = 2*n + 2;
 
-    if ((left <= v_raw_data->size() - 1) && (v_raw_data->at(v_weak_pointers->at(left))).count != -1)
+    if ((left <= v_raw_data->size() - 1) && (v_raw_data->at(left)).count != -1)
     {
         l = true;
     }
@@ -859,7 +749,7 @@ void BinarySearchTree<T>::checkChildrenExist(size_t n, bool &l, bool &r)
         l = false;
     }
 
-    if ((right <= v_raw_data->size() - 1) && (v_raw_data->at(v_weak_pointers->at(right))).count != -1)
+    if ((right <= v_raw_data->size() - 1) && (v_raw_data->at(right)).count != -1)
     {
         r = true;
     }
@@ -913,7 +803,7 @@ int BinarySearchTree<T>::depth(size_t farthestNode, size_t root)
     int c = 0;
 
     // if the parent/root is not blank, do incrementations
-    if (v_raw_data->at(v_weak_pointers->at(root)).count != -1)
+    if (v_raw_data->at(root).count != -1)
     {
         // counts back from the farthest node to the highest
         for(size_t i = farthestNode; i > root; i = (i-1)/2)
@@ -957,14 +847,12 @@ template<typename T>
 void BinarySearchTree<T>::createBranches(size_t max)
 {
 //    cout << "creating placeholding nodes\n";
-    while (max > v_weak_pointers->size() - 1)
+    while (max > v_raw_data->size() - 1)
     {
-    //        cout << "placeholder " << v_weak_pointers->size() -1 << endl;
         node placeHolder;
         placeHolder.count = -1;
 
         v_raw_data->push_back(placeHolder);
-        v_weak_pointers->push_back(v_raw_data->size() - 1);
     }
 
 }

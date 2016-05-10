@@ -9,64 +9,36 @@ int main()
 {
     BinarySearchTree<int> bst;
 
-    int num;
-    srand(time(NULL));
+    bst << 100 << 200 << 300 << 400 << 500 << 600;
 
 
-//    cout << bst.depth(50,0) << endl;
 
-//    size_t count = 0, digits = 0, size = 23;
-
-//    for (size_t i = size; i > 0; i /= 10)
-//    {
-//        ++digits;
-//    }
-
-//    for (size_t i = 0; i <= size; ++i)
-//    {
-//        if (count % 5 == 0)
-//            cout << endl;
-//        cout << setw(digits) << i << "|" <<
-//                setw(digits) << (2*i + 1) << "|"<<
-//                setw(digits) << (2*i + 2) << " ";
-//        ++count;
-//    }
-
-//    cout << endl << endl;
+//        int num;
+//        srand(time(NULL));
 
 
-////cout << "inserted " << 50 << endl;
-//    bst << 50;
-//    cout << "\tinserted\n";
 
+//        size_t digits = 0, size = 10, max = 100;
 
-////cout << "inserted " << 25 << endl;
-////bst << 25;
-//    bst << 100;
-//    cout << "\tinserted\n";
-
-//    bst << 200;
-//    cout << "\tinserted\n";
-
-
-////    exit(1);
-//////cout << "inserted " << 0 << endl;
-//bst << 0;
-//cout << "inserting " << 1 << endl;
-//bst << 1;
-//cout << "inserting " << 2 << endl;
-//bst << 2;
-
-    for (size_t i = 0; i < 500; ++i)
-    {
-        num = rand() % 100;
-        cout << i << "\t" << num << endl;
-
-        bst << num;
-    }
+//        for (size_t i = size; i > 0; i /= 10)
+//        {
+//            ++digits;
+//        }
+//        for (size_t i = 0; i < size; ++i)
+//        {
+//            num = rand() % max;
+////            cout << i << "\t" << num << endl;
+//            bst << num;
+//        }
+//        cout << "done inserting\n";
 
     cout << "\n\n\nprinting\n";
     bst.print(cout);
+
+//    for(int i = 0; i < 60; ++i)
+//    {
+//        cout << i << "|" << 2*i + 1 << "|" << 2*i + 2<< endl;
+//    }
 
     cout << endl << endl;
 
